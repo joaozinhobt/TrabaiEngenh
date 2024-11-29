@@ -49,4 +49,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 if (isset($_GET['delete'])) {
     deleteUser($_GET['delete']);
 }
+
 ?>

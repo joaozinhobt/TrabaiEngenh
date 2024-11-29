@@ -1,50 +1,10 @@
-<?php
-session_start();
-include 'db.php';
-
-$error = "";
-
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $email = trim($_POST['email']);
-    $senha = trim($_POST['senha']);
-
-    // Validações básicas
-    if (empty($email) || empty($senha)) {
-        $error = "Por favor, preencha todos os campos.";
-    } else {
-        // Consulta segura na tabela de usuários
-        $stmt = $conn->prepare("SELECT id, nome FROM usuarios WHERE email = ? AND senha = ?");
-        $stmt->bind_param("ss", $email, $senha);
-        $stmt->execute();
-        $stmt->store_result();
-
-        if ($stmt->num_rows > 0) {
-            $stmt->bind_result($id, $nome);
-            $stmt->fetch();
-
-            // Registra o usuário na sessão
-            $_SESSION['email'] = $email;
-            $_SESSION['nome'] = $nome;
-            $_SESSION['id'] = $id;
-
-            header("Location: principal.php");
-            exit();
-        } else {
-            $error = "Login ou senha inválidos. Tente novamente.";
-        }
-        $stmt->close();
-    }
-}
-$conn->close();
-?>
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Criar Nova Conta</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -57,7 +17,7 @@ $conn->close();
             font-family: Arial, sans-serif;
         }
 
-        .login-container {
+        .register-container {
             background-color: #fff;
             padding: 30px;
             border-radius: 10px;
@@ -66,7 +26,7 @@ $conn->close();
             width: 100%;
         }
 
-        .login-container h2 {
+        .register-container h2 {
             margin-bottom: 20px;
             color: #007bff;
             text-align: center;
@@ -102,8 +62,8 @@ $conn->close();
 </head>
 
 <body>
-    <div class="login-container">
-        <h2>Acesse sua conta</h2>
+    <div class="register-container">
+        <h2>Criar Nova Conta</h2>
 
         <?php if (!empty($error)): ?>
             <div class="alert alert-danger text-center" role="alert">
@@ -111,7 +71,11 @@ $conn->close();
             </div>
         <?php endif; ?>
 
-        <form method="POST" action="">
+        <form method="POST" action="processa_registro.php">
+            <div class="mb-3">
+                <label for="nome" class="form-label">Nome Completo:</label>
+                <input type="text" id="nome" name="nome" class="form-control" placeholder="Digite seu nome" required>
+            </div>
             <div class="mb-3">
                 <label for="email" class="form-label">Email:</label>
                 <input type="email" id="email" name="email" class="form-control" placeholder="Digite seu email" required>
@@ -120,13 +84,15 @@ $conn->close();
                 <label for="senha" class="form-label">Senha:</label>
                 <input type="password" id="senha" name="senha" class="form-control" placeholder="Digite sua senha" required>
             </div>
-            <button type="submit" class="btn btn-primary">Entrar</button>
+            <div class="mb-3">
+                <label for="confirma_senha" class="form-label">Confirmar Senha:</label>
+                <input type="password" id="confirma_senha" name="confirma_senha" class="form-control" placeholder="Confirme sua senha" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Criar Conta</button>
         </form>
 
         <div class="extra-options mt-3">
-            <!-- Corrigido para apontar para o arquivo correto -->
-            <p><a href="esqueci_senha.php">Esqueceu sua senha?</a></p>
-            <p><a href="registro.php">Criar uma nova conta</a></p>
+            <p>Já possui uma conta? <a href="login.php">Faça login</a></p>
         </div>
     </div>
 
